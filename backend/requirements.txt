@@ -1,0 +1,35 @@
+# Backend dependencies for AI Resume Matcher
+# Install with: pip install -r requirements.txt
+# Use a SEPARATE venv from the frontend - see README for why.
+#
+# NOTE: spacy, scikit-learn, and numpy versions here are newer than
+# this project's original pins. This was required because Python
+# 3.12.4 breaks spacy 3.7.4's internals (a known upstream bug -
+# ForwardRef._evaluate() signature change). Upgrading spacy to 3.8.x
+# fixed that, which in turn required numpy 2.x, which in turn
+# required upgrading scikit-learn past 1.3.2 (which hard-pins
+# numpy<2.0). All three were tested together and confirmed working
+# end-to-end (resume upload + parsing + matching) after this change.
+
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-docx==0.8.11
+pdfminer.six==20231228
+spacy==3.8.14
+# en_core_web_sm is a separate spaCy language model download, used
+# for NLP-based skill extraction. Install it after the line above with:
+#   python -m spacy download en_core_web_sm
+beautifulsoup4==4.12.2
+requests==2.34.2
+scikit-learn==1.5.2
+numpy==2.5.0
+python-multipart==0.0.9
+python-dotenv==1.0.0
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+# psycopg2-binary is the driver that lets Python talk to PostgreSQL -
+# without it, SQLAlchemy has no way to connect to the database.
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-jose[cryptography]==3.3.0
+pydantic[email]==2.13.4

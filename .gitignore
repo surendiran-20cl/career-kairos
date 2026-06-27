@@ -1,0 +1,37 @@
+# This file tells Git "never track these files/folders," 
+# so  password and bulky venv folder never get uploaded.
+
+# --- Environment secrets ---
+# Never commit real .env files - only .env.example should be tracked
+.env
+backend/.env
+frontend/.env
+
+# --- Virtual environments ---
+venv/
+backend/venv/
+frontend/venv/
+env/
+.venv/
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+
+# --- Streamlit ---
+.streamlit/secrets.toml

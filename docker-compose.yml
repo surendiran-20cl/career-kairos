@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: resume_matcher_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: resume_user
+      POSTGRES_PASSWORD: resume_pass
+      POSTGRES_DB: resume_matcher
+    ports:
+      - "5433:5432"
+    volumes:
+      - resume_matcher_data:/var/lib/postgresql/data
+
+volumes:
+  resume_matcher_data:

@@ -1,0 +1,8 @@
+# Frontend dependencies for AI Resume Matcher
+# Install with: pip install -r requirements.txt
+# Use a SEPARATE venv from the backend - mixing them causes a
+# Starlette version conflict (Streamlit needs a newer Starlette
+# than FastAPI 0.109.0 supports). See README for details.
+
+streamlit==1.58.0
+requests==2.31.0
