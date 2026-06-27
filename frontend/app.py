@@ -1,5 +1,5 @@
 """
-AI Resume Matcher - Streamlit Frontend
+Career Kairos - AI Resume Matcher - Streamlit Frontend
 ========================================
 This file is the ENTIRE user interface. It does not talk to the
 database directly - it only ever talks to our FastAPI backend
@@ -31,7 +31,7 @@ import streamlit as st
 # ----------------------------------------------------------------------
 API_BASE = "http://127.0.0.1:8000"
 
-st.set_page_config(page_title="AI Resume Matcher", page_icon="🧩", layout="wide")
+st.set_page_config(page_title="Career Kairos - AI Resume Matcher", page_icon="🧩", layout="wide")
 
 
 # ----------------------------------------------------------------------
@@ -120,7 +120,7 @@ def auth_headers():
 # LOGIN / REGISTER SCREEN
 # ----------------------------------------------------------------------
 def show_login_page():
-    st.title("🧩 AI Resume Matcher")
+    st.title("🧩 Career Kairos - AI Resume Matcher")
     st.caption("Log in or create an account to continue.")
 
     login_tab, register_tab = st.tabs(["Log In", "Register"])
@@ -474,7 +474,7 @@ def show_main_app():
             st.session_state.user_email = None
             st.rerun()
 
-    st.title("🧩 AI Resume Matcher")
+    st.title("🧩 Career Kairos - AI Resume Matcher")
 
     tab1, tab2, tab3 = st.tabs(["📄 Resume", "💼 Job", "🎯 Match"])
     with tab1:
