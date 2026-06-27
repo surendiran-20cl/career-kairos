@@ -2,8 +2,8 @@
 
 > An AI-powered tool that compares your resume against a job description, scores the match, and tells you exactly which skills you're missing.
 
-**🔗 Live demo:** _coming soon_
-**📺 Demo video / screenshots:** _coming soon_
+** Live demo:** _coming soon_
+** Demo video / screenshots:** _coming soon_
 
 ---
 
@@ -72,8 +72,8 @@ resume-matcher/
 ### 1. Clone and configure environment variables
 
 ```bash
-git clone <your-repo-url>
-cd resume-matcher
+git clone https://github.com/surendiran-20cl/career-kairos.git
+cd career-kairos
 copy backend\.env.example backend\.env
 ```
 
