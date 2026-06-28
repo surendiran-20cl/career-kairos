@@ -54,24 +54,32 @@ class ResumeParser:
     def extract_skills(text: str) -> List[str]:
         """
         Scan the text for any skill in our curated taxonomy.
-        Matching is tolerant of common formatting variants between
-        multi-word skills - "Power BI", "PowerBI", "Power-BI", and
-        "Power_BI" are all treated as the same skill, since resumes
-        are inconsistent about spacing/punctuation in practice.
+        Matching tolerates:
+        - spacing/punctuation variants between words ("power bi",
+          "power-bi", "powerbi" all match the same skill)
+        - trailing version numbers/symbols directly after a skill
+          name ("html5", "css3", "angular10", "python3" all match
+          their base skill, since resumes commonly append versions
+          with no separating space)
         """
         normalized_text = normalize(text)
         found = set()
         for skill in SKILLS_SET:
-            # Split the skill into its words, then allow any mix of
-            # spaces, hyphens, underscores, or nothing at all between
-            # them - e.g. "power bi" -> matches "power bi", "power-bi",
-            # "power_bi", and "powerbi".
             words = skill.split(" ")
             flexible_pattern = r"[\s\-_]*".join(re.escape(word) for word in words)
-            pattern = r"\b" + flexible_pattern + r"\b"
+            # \b at the start still requires a real word boundary before
+            # the skill. At the end, instead of \b (which fails right
+            # before a digit, since digits count as "word" characters),
+            # we use a lookahead that allows the skill to be followed by
+            # punctuation/space/end-of-string, OR a version-like suffix
+            # (optional dot/space/hyphen then digits), but not by
+            # another letter (which would mean it's part of a longer word).
+            pattern = r"\b" + flexible_pattern + r"(?:[\s.\-]?\d+(?:[.\d+]*)?)?(?![a-zA-Z])"
             if re.search(pattern, normalized_text):
                 found.add(skill)
         return sorted(found)
+# What this changes precisely: instead of ending with \b, we end with (?:[\s.\-]?\d+(?:[.\d+]*)?)? (optionally swallow a version-like suffix: optional space/dot/hyphen, then digits, then more dots/digits — covers 5, .6, -10, 6/8 partially, 10+) followed by (?![a-zA-Z]) — a negative lookahead meaning "not immediately followed by another letter." This correctly matches html5, css3, angular10 while still correctly rejecting a skill like "r" matching inside "prepare" (since prepare has letters right after, the lookahead blocks it).
+
 
     @staticmethod
     def _extract_experience(text: str) -> List[Dict]:
