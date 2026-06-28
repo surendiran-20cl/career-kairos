@@ -48,23 +48,29 @@ class ResumeParser:
             "summary": ResumeParser._generate_summary(skills, experience, education),
         }
 
+    
+
     @staticmethod
     def extract_skills(text: str) -> List[str]:
         """
         Scan the text for any skill in our curated taxonomy.
-        This is a simple substring match, which is intentionally easy
-        to reason about: if the skill name appears anywhere in the
-        text, we count it as present.
+        Matching is tolerant of common formatting variants between
+        multi-word skills - "Power BI", "PowerBI", "Power-BI", and
+        "Power_BI" are all treated as the same skill, since resumes
+        are inconsistent about spacing/punctuation in practice.
         """
         normalized_text = normalize(text)
         found = set()
-
         for skill in SKILLS_SET:
-            # \b...\b avoids partial-word matches (e.g. "r" matching inside "your")
-            pattern = r"\b" + re.escape(skill) + r"\b"
+            # Split the skill into its words, then allow any mix of
+            # spaces, hyphens, underscores, or nothing at all between
+            # them - e.g. "power bi" -> matches "power bi", "power-bi",
+            # "power_bi", and "powerbi".
+            words = skill.split(" ")
+            flexible_pattern = r"[\s\-_]*".join(re.escape(word) for word in words)
+            pattern = r"\b" + flexible_pattern + r"\b"
             if re.search(pattern, normalized_text):
                 found.add(skill)
-
         return sorted(found)
 
     @staticmethod
@@ -107,4 +113,4 @@ class ResumeParser:
             parts.append(f"Skills: {shown}{', ...' if len(skills) > 5 else ''}")
         parts.append(f"Experience entries: {len(experience)}")
         parts.append(f"Education entries: {len(education)}")
-        return " | ".join(parts)
+        return " | ".join(parts)    
