@@ -1,9 +1,11 @@
-# Career Kairos - AI Resume Matcher
+#  Career Kairos — AI Resume Matcher
 
 > An AI-powered tool that compares your resume against a job description, scores the match, and tells you exactly which skills you're missing.
 
-** Live demo:** _coming soon_
-** Demo video / screenshots:** _coming soon_
+**Live demo:** https://career-kairos.streamlit.app
+**Live API docs:** https://career-kairos.onrender.com/docs
+
+> Note: the backend is hosted on a free tier and may take 30-60 seconds to "wake up" if it's been idle. This is normal free-tier behavior, not a bug.
 
 ---
 
@@ -12,10 +14,26 @@
 I built this to go beyond a typical CRUD app - it combines a real
 authentication system, NLP-based resume/job parsing, and a
 configurable matching engine (TF-IDF, keyword overlap, or a hybrid
-of both) into one working tool. The goal was to practice building
+of both) into one working tool, deployed fully live across three
+separate free-tier cloud services. The goal was to practice building
 something close to a real product: a FastAPI backend with its own
 database and auth, talking to a separate frontend over a clean REST
-API, the way a real client-server app is structured in production.
+API, the way a real client-server app is structured in production -
+and then actually shipping it.
+
+## Screenshots
+Below are some representative UI screens from the app.
+
+### Register / Login
+![Register new user](docs/register-new-user.png)
+
+### Add job description
+![Paste job description](docs/add-job-paste-jd.png)
+![Scrape job URL](docs/add-job-url-scrape.png)
+
+### Match results
+![Match resume by pasted job description](docs/match-resume-by-jd.png)
+![Match resume by job URL](docs/match-resume-by-url.png)
 
 ## Features
 
@@ -26,26 +44,33 @@ API, the way a real client-server app is structured in production.
 -  Match score, missing required/preferred skills, and tailored recommendations
 -  Match history per user
 
-## Tech Stack
+## Tech Stack & Architecture
 
-| Layer       | Technology                                       |
-|-------------|---------------------------------------------------|
-| Backend     | FastAPI, SQLAlchemy, PostgreSQL                   |
-| Frontend    | Streamlit                                         |
-| NLP/Parsing | spaCy, scikit-learn, pdfminer.six, python-docx    |
-| Auth        | JWT (python-jose), bcrypt password hashing        |
-| Database    | PostgreSQL (via Docker locally / Neon in production) |
+| Layer       | Technology                                       | Hosted on              |
+|-------------|---------------------------------------------------|-------------------------|
+| Frontend    | Streamlit                                         | Streamlit Community Cloud |
+| Backend     | FastAPI, SQLAlchemy                               | Render (free tier)      |
+| Database    | PostgreSQL                                        | Neon (free tier)        |
+| NLP/Parsing | spaCy, scikit-learn, pdfminer.six, python-docx    | -                        |
+| Auth        | JWT (python-jose), bcrypt password hashing        | -                        |
 
-## Screenshots
-
-> _To Add 2-3 screenshots here once deployed: the login screen, a resume upload, and a match result with scores._
+```
+Browser
+  │
+  ▼
+Streamlit Cloud (frontend/app.py)
+  │  HTTPS REST calls
+  ▼
+Render (FastAPI backend)
+  │  SQL over SSL
+  ▼
+Neon (PostgreSQL)
+```
 
 ## Project Structure
 
 ```
 resume-matcher/
-├── docker-compose.yml
-├── start.bat                 # one-click local launcher (Windows)
 ├── backend/
 │   ├── app/
 │   │   ├── main.py
@@ -56,18 +81,21 @@ resume-matcher/
 │   │   ├── routers/          # auth, resume, job, match endpoints
 │   │   └── services/         # parser, scraper, matcher logic
 │   ├── requirements.txt
+│   ├── .python-version       # pins Python 3.12.4 for Render
 │   ├── .env.example
 │   └── create_tables.py
-└── frontend/
-    ├── app.py
-    └── requirements.txt
+├── frontend/
+│   ├── app.py
+│   └── requirements.txt
+├── docker-compose.yml         # for local Postgres only
+└── start.bat                  # one-click local launcher (Windows)
 ```
 
-## Setup (run it locally)
+## Running it locally
 
 ### Prerequisites
 - Python 3.11+ (tested on 3.12.4)
-- Docker Desktop (for PostgreSQL)
+- Docker Desktop (for local PostgreSQL - not needed if you point at Neon instead)
 
 ### 1. Clone and configure environment variables
 
@@ -77,14 +105,15 @@ cd career-kairos
 copy backend\.env.example backend\.env
 ```
 
-Open `backend/.env` and fill in real values - especially generate a
-proper `SECRET_KEY` rather than using the placeholder:
+Open `backend/.env` and fill in real values - either a local Docker
+Postgres URL or your own Neon connection string - and generate a
+proper `SECRET_KEY`:
 
 ```python
 import secrets; print(secrets.token_hex(32))
 ```
 
-### 2. Start the database
+### 2. Start the database (skip if using Neon)
 
 ```bash
 docker-compose up -d
@@ -102,8 +131,7 @@ python create_tables.py
 uvicorn app.main:app --reload
 ```
 
-Backend will be running at `http://127.0.0.1:8000` (interactive API
-docs at `http://127.0.0.1:8000/docs`).
+Backend runs at `http://127.0.0.1:8000` (docs at `/docs`).
 
 ### 4. Set up the frontend (a *separate* virtual environment)
 
@@ -117,41 +145,49 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Frontend will open at `http://localhost:8501`.
+Frontend opens at `http://localhost:8501`. Update `API_BASE` at the
+top of `frontend/app.py` to `http://127.0.0.1:8000` for local
+testing (it currently points at the live Render backend).
 
 ### Why two separate virtual environments?
 
 Streamlit and this version of FastAPI need different, incompatible
 versions of a shared dependency (Starlette). Installing both into
 one environment causes one to silently break the other. Keeping
-backend and frontend isolated avoids this, and means a future
-upgrade on one side can never break the other.
+backend and frontend isolated avoids this entirely.
 
 ### Shortcut: `start.bat`
 
-Once both venvs are set up once (steps 3 & 4 above), `start.bat` in
-the project root launches the database, backend, and frontend
-together, each in its own terminal window.
+Once both venvs are set up once, `start.bat` in the project root
+launches the local database, backend, and frontend together, each
+in its own terminal window.
 
 ## Known Limitations
 
-- **Job URL scraping is best-effort.** Many job sites (LinkedIn,
-  Indeed, etc.) actively block automated scrapers, so `/job/scrape`
-  may fail on many real-world URLs. **Pasting the job description
-  text directly** (`/job/parse-text`) is the reliable path and is
-  the default tab in the UI.
-- Skill extraction is based on a curated skill taxonomy rather than
-  a fully general-purpose NLP model, so unusual or very niche skills
-  may not be detected.
+- **Job URL scraping is best-effort.** It works on some job boards
+  but reliably fails on heavily-protected ATS platforms (Workday,
+  Oracle, iCIMS, etc.) that block automated scrapers. **Pasting the
+  job description text directly** is the reliable path and is the
+  default tab in the UI.
+- **Skill extraction uses a curated keyword taxonomy**, not a fully
+  general NLP model. This means formatting variants of a skill
+  (e.g. "PowerBI" vs "Power BI") can sometimes be missed if they
+  don't match the taxonomy's exact normalization. Improving this
+  normalization is an active area of cleanup.
+- **Free-tier cold starts.** The backend (Render) spins down after
+  inactivity and can take 30-60 seconds to respond to the first
+  request after idling.
 
 ## Possible Future Improvements
 
+- Smarter, fuzzy skill-matching (handle spacing/punctuation variants
+  and synonyms, not just exact taxonomy hits)
 - Headless-browser based scraping (e.g. Playwright) for more
   reliable job URL imports
 - Resume improvement suggestions powered by an LLM
 - Export match results as a PDF report
-- Dockerize the frontend and backend together for one-command startup
 - Automated tests (currently none)
+- Custom domain instead of the default `*.onrender.com` / `*.streamlit.app` URLs
 
 ## License
 
