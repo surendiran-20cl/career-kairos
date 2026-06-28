@@ -22,18 +22,21 @@ API, the way a real client-server app is structured in production -
 and then actually shipping it.
 
 ## Screenshots
-Below are some representative UI screens from the app.
 
-### Register / Login
-![Register new user](docs/register-new-user.png)
+**Matching a resume against a job, with live results:**
 
-### Add job description
-![Paste job description](docs/add-job-paste-jd.png)
-![Scrape job URL](docs/add-job-url-scrape.png)
+![Match result showing score, skills, and recommendations](docs/match-resume-by-jd.png)
 
-### Match results
-![Match resume by pasted job description](docs/match-resume-by-jd.png)
-![Match resume by job URL](docs/match-resume-by-url.png)
+**Creating an account:**
+
+![Register a new user](docs/register-new-user.png)
+
+**Adding a job via pasted text:**
+
+![Add a job screen](docs/add-job-paste-jd.png)
+
+> A couple more screenshots (URL-based job scraping and matching) are
+> available in the `docs/` folder for anyone curious to dig deeper.
 
 ## Features
 
