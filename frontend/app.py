@@ -29,7 +29,8 @@ import streamlit as st
 # ----------------------------------------------------------------------
 # CONFIG
 # ----------------------------------------------------------------------
-API_BASE = "http://127.0.0.1:8000"
+# API_BASE = "http://127.0.0.1:8000"  # local FastAPI backend
+API_BASE = "https://career-kairos.onrender.com"  # deployed FastAPI backend
 
 st.set_page_config(page_title="Career Kairos - AI Resume Matcher", page_icon="🧩", layout="wide")
 
